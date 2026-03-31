@@ -5,8 +5,7 @@ This document outlines the development phases for the AI-powered TODO applicatio
 ## Core Mandates
 - **TDD Workflow**: Every feature starts with a test.
 - **Branching Strategy**: Each phase/feature is developed in a separate `feature/` branch.
-- **Pull Requests**: Changes are pushed to `master` via PRs only.
-- **No Deletion**: Files must never be deleted.
+- **Pull Requests**: Changes are pushed to `main` via PRs only.
 
 ## Phase 1: Project Initialization & Environment Setup
 - [ ] Initialize Expo project (`npx create-expo-app@latest .`).
