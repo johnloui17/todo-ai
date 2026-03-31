@@ -1,51 +1,54 @@
 # Product Requirement Document (PRD): TODO AI (Local-First)
 
-**Version**: 1.0  
-**Status**: Draft (Discovery Loop 2)  
+**Version**: 1.1  
+**Status**: Finalized (Discovery Complete)  
 **Author**: PRD Architect Agent  
 
 ## 1. Problem Statement
-Users need a task management system that is as reliable as a local notebook (works 100% offline) but as powerful as a cloud-native AI assistant. Existing apps either fail without internet or lack high-performance, on-device AI capabilities for seamless task entry.
+Users need a task management system that is as reliable as a local notebook (works 100% offline) but as powerful as a cloud-native AI assistant. Existing apps either fail without internet or lack high-performance, on-device AI capabilities for seamless task entry and dynamic organization.
 
 ## 2. Goals & Objectives
 - **Offline-First Excellence**: Zero-latency UI using a local database (SQLite WASM).
-- **Scalable Architecture**: A "Local-First" sync engine that can handle future public users and complex feature sets.
-- **AI-Powered Entry**: Convert screenshots directly into structured tasks locally using WebGPU.
-- **Dynamic Task Selection**: A workflow to pull tasks from a "Pool" into categorized execution lists.
+- **Scalable Architecture**: A "Local-First" sync engine ready for public scale.
+- **AI-Powered Entry**: Agentic OCR to convert screenshots into structured, auto-categorized tasks locally using WebGPU.
+- **Dynamic Task Management**: Flexible category CRUD and a "Pool-to-Category" workflow.
 
-## 3. User Stories (Iterative Discovery)
+## 3. User Stories
 
-### Core Functionality
-- **AS A** user, **I WANT TO** add, edit, and mark tasks as complete while offline, **SO THAT** my productivity is never interrupted by connectivity issues.
-- **AS A** user, **I WANT** my data to automatically sync to the cloud when internet returns, **SO THAT** I don't lose data and can access it across devices.
+### Core Functionality & Hierarchy
+- **AS A** user, **I WANT TO** add, edit, and mark tasks as complete while offline.
+- **AS A** user, **I WANT TO** create subtasks under a main task, **SO THAT** I can break down complex goals into manageable steps.
+- **AS A** user, **I WANT** my data to automatically sync to the cloud when internet returns.
+
+### Dynamic Category Management
+- **AS A** user, **I WANT TO** add, rename, or remove categories (minimum 4 to start), **SO THAT** the app adapts to my specific life domains.
+- **AS A** user, **I WANT TO** see a progress indicator (percentage or progress bar) for each category, **SO THAT** I can quickly visualize how much work is remaining in each domain.
+- **AS A** user, **I WANT TO** delete a category and choose what happens to its tasks (e.g., move back to Pool or delete).
+
+### Task Pool (The Backlog)
+- **AS A** user, **I WANT TO** build a "Task Pool" of ideas and upcoming items.
+- **AS A** user, **I WANT TO** move tasks from the Pool into a specific Category, **SO THAT** they are removed from the Pool view and prioritized.
+- **AS A** user, **I WANT TO** delete the entire Task Pool if needed, **SO THAT** I can start fresh.
 
 ### AI Screenshot-to-Task
-- **AS A** user, **I WANT TO** upload or take a screenshot of a list (e.g., from a physical notebook or another app), **SO THAT** the AI can automatically extract and create individual TODO items for me.
-
-### Task Pool & Categorization
-- **AS A** user, **I WANT TO** maintain a "Task Pool" (Backlog), **SO THAT** I can dump ideas without cluttering my daily view.
-- **AS A** user, **I WANT TO** select specific tasks from the pool and assign them to one of 4 categories:
-    1. **Primary**: High-impact, non-negotiable tasks.
-    2. **Secondary**: Important but non-urgent tasks.
-    3. **Hobby**: Personal growth and leisure tasks.
-    4. **[TO BE NAMED]**: (Suggested: "Quick Wins" or "Maintenance")
-- **AS A** user, **I WANT** a clear visual distinction between these categories, **SO THAT** I can prioritize my day effectively.
+- **AS A** user, **I WANT TO** upload a screenshot, **SO THAT** the AI extracts tasks AND suggests appropriate categories for them automatically.
+- **AS A** user, **I WANT TO** review the AI's suggestions before they are committed to my categories or Pool.
 
 ## 4. Technical Specification (2026 "Golden Stack")
 - **Frontend**: Next.js 16 (React 19) + Tailwind CSS v4.
 - **Local Database**: SQLite (WASM) via Origin Private File System (OPFS).
-- **Sync Engine**: PowerSync or ElectricSQL (Postgres backend).
-- **On-Device AI**: Transformers.js v3 + WebGPU (Local OCR & Schema Extraction).
-- **Deployment**: PWA (Progressive Web App) for direct browser "download" and mobile-first experience.
+- **Sync Engine**: PowerSync (Postgres backend).
+- **On-Device AI**: Transformers.js v3 + WebGPU.
+    - *OCR Model*: DeepSeek OCR or similar.
+    - *Classification*: Local SLM (Phi-3.5 Mini) for categorization.
+- **Deployment**: PWA (Progressive Web App).
 
 ## 5. Success Metrics
-- **Performance**: <50ms interaction latency for all local operations.
-- **Reliability**: 100% data integrity during offline-to-online transitions.
-- **AI Accuracy**: >90% accuracy in structured task extraction from screenshots.
+- **Performance**: <50ms interaction latency.
+- **Organization**: Users should be able to move 5 tasks from Pool to Category in <10 seconds.
+- **AI Accuracy**: >90% extraction and >80% correct auto-categorization.
 
----
-
-## 6. Open Questions for User (Discovery Loop 2)
-1. **The 4th Category**: What would you like to name the 4th category? (Suggestions: "Urgent/Firefight", "Admin", or "Backburner").
-2. **Selection Logic**: When you select tasks from the "Pool" into categories, should they stay in the pool or be moved out?
-3. **Screenshot Flow**: Should the AI automatically categorize the extracted tasks, or just dump them into the "Pool" for you to categorize manually?
+## 6. Architecture & Data Flow
+1. **Schema**: `Categories` (1) -> `Tasks` (N) -> `Subtasks` (N).
+2. **The Pool**: A specialized view of tasks where `category_id` is NULL or set to a reserved `POOL` ID.
+3. **Selection Logic**: When a task is assigned a `category_id`, it is filtered out of the "Pool" view.

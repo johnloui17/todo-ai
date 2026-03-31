@@ -15,14 +15,14 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - [ ] Create basic folder structure.
 
 ## Phase 2: Core Data Model & Storage
-- [ ] Define Task data interface.
-- [ ] Implement `AsyncStorage` helper functions with unit tests.
-- [ ] Test persistence and retrieval logic.
+- [ ] Define Task, Subtask, and Category schemas.
+- [ ] Implement `SQLite` (Local-First) schema with `Drizzle ORM`.
+- [ ] Implement `PowerSync` connection logic.
 
 ## Phase 3: Basic UI Component Implementation
-- [ ] Create `TaskItem` component (TDD).
-- [ ] Create `TaskList` component (TDD).
-- [ ] Create `AddTask` input component (TDD).
+- [ ] Create `CategoryManager` component with progress bars (TDD).
+- [ ] Create `TaskItem` with Subtask support (TDD).
+- [ ] Create `TaskPool` selection interface (TDD).
 
 ## Phase 4: Feature Integration & State Management
 - [ ] Implement Task addition logic.
