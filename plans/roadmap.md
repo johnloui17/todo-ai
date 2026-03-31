@@ -8,8 +8,9 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - **Pull Requests**: Changes are pushed to `main` via PRs only.
 
 ## Phase 1: Project Initialization & Environment Setup
-- [ ] Initialize Expo project (`npx create-expo-app@latest .`).
-- [ ] Set up testing framework (Jest & React Native Testing Library).
+- [ ] Initialize Next.js project with Tailwind v4.
+- [ ] Set up Google OAuth (Supabase/Clerk).
+- [ ] Set up testing framework (Vitest & Testing Library).
 - [ ] Configure linting and code style.
 - [ ] Create basic folder structure.
 

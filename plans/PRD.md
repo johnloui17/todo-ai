@@ -37,7 +37,7 @@ Users need a task management system that is as reliable as a local notebook (wor
 
 ### Data Ownership & Auth
 - **AS A** user, **I WANT TO** export my data as JSON/CSV, **SO THAT** I truly own my data.
-- **AS A** user, **I WANT** to sign in (future public phase) to keep my data synced across my phone and laptop.
+- **AS A** user, **I WANT** to sign in using my **Google Account**, **SO THAT** my tasks are securely synced and I don't have to manage another password.
 
 ## 4. Technical Specification (2026 "Golden Stack")
 - **Frontend**: Next.js 16 (React 19) + Tailwind CSS v4.
@@ -46,7 +46,7 @@ Users need a task management system that is as reliable as a local notebook (wor
 - **Conflict Resolution**: "Last Write Wins" (LWW) for MVP; Architected for CRDT migration in future.
 - **On-Device AI**: Transformers.js v3 + WebGPU.
     - *Fallback*: Server-side inference if `navigator.gpu` is undefined.
-- **Auth**: Clerk or Supabase Auth (Integrated with PowerSync Row-Level Security).
+- **Auth**: **Google OAuth** via Supabase Auth or Clerk (Integrated with PowerSync Row-Level Security).
 - **Deployment**: PWA (Progressive Web App).
 
 ## 5. Success Metrics
