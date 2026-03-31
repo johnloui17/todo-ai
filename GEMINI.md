@@ -11,7 +11,7 @@
 - **Workflow**: Phased implementation via feature branches and Pull Requests.
 
 ## Roadmap
-See [plans/roadmap.md](./plans/roadmap.md) for detailed phases.
+See [plans/PRD.md](./plans/PRD.md) for the master requirements and [plans/roadmap.md](./plans/roadmap.md) for detailed phases.
 
 ## Next Steps
 1. Push `feature/setup-plans` and raise a PR to `master`.

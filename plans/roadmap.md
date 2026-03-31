@@ -1,6 +1,6 @@
 # TODO App Roadmap (TDD Approach)
 
-This document outlines the development phases for the AI-powered TODO application using Expo and React Native.
+This document outlines the development phases for the AI-powered TODO application. Requirements are defined in the [Master PRD](./PRD.md).
 
 ## Core Mandates
 - **TDD Workflow**: Every feature starts with a test.
