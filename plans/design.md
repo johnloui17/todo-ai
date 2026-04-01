@@ -9,8 +9,8 @@ Tasks:
 4. List every user journey I need to design for (onboarding, core action, error recovery, empty state)
 5. Identify any assumptions I'm making that need to be validated
 
-My product is: [DESCRIBE YOUR PRODUCT HERE]
-My target user is: [DESCRIBE TARGET USER]
+My product is: Offline-first, local AI-powered task management app with screenshot-to-task parsing.
+My target user is: Busy professionals or students who frequently take screenshots of things they need to do later, and value data privacy/offline access.
 
 Free tools: v0.dev, Perplexity AI, ChatGPT, Notion AI
 
@@ -22,14 +22,14 @@ You are an expert Information Architect. Help me structure my product's IA.
 
 Tasks:
 1. Create a complete sitemap listing every screen/page and how they connect
-2. Map out step-by-step user flows for these key actions: [LIST YOUR KEY ACTIONS]
+2. Map out step-by-step user flows for these key actions: Upload screenshot for AI task extraction, move tasks from Task Pool to Categories, create a task with nested subtasks.
 3. Define the content hierarchy for each main screen (what is most important, secondary, tertiary)
 4. Recommend a navigation pattern (top nav / sidebar / bottom tabs / hamburger) with reasoning
 5. Identify any screens I might be missing
 
 Apply these principles: progressive disclosure, minimal clicks to core action, familiar patterns over clever ones.
 
-My product screens so far: [LIST YOUR SCREENS]
+My product screens so far: Login (Google OAuth), Main Dashboard (with Category Progress), Task Detail Screen (with nested subtasks), Task Pool Screen, AI Screenshot Upload/Processing Modal, Settings.
 
 Free tools: Whimsical (free), Miro (free tier), FigJam (free), Eraser.io
 
@@ -45,8 +45,9 @@ For each screen listed below, describe:
 3. The primary CTA and where it lives
 4. What empty state, loading state, and error state should show
 5. Mobile vs desktop layout differences
+6. **Crucial:** Include Sync Status Indicators (Offline, Syncing, Up-to-Date) and AI Fallback states (if WebGPU unsupported).
 
-Screens to wireframe: [LIST YOUR SCREENS]
+Screens to wireframe: Login, Main Dashboard, Task Detail, Task Pool, AI Screenshot Upload Modal, Profile & Settings.
 
 Output each screen as a structured text wireframe using ASCII or a clear description I can hand to a designer or paste into Figma.
 
@@ -66,8 +67,8 @@ Tasks:
 5. Suggest a free icon library that fits my product's tone
 6. Define elevation levels (no shadow / subtle / medium / high)
 
-My product tone is: [professional / playful / minimal / bold / trustworthy]
-My primary brand color is: [HEX or description]
+My product tone is: minimal, fast & functional, trustworthy.
+My primary brand color is: [Please suggest based on the described tone]
 
 Free tools: Shadcn/ui (free), Radix UI (free), Lucide Icons (free), Google Fonts (free), Coolors (free)
 
@@ -87,8 +88,8 @@ For each screen, provide:
 
 Apply these principles: generous whitespace, consistent 8px grid, WCAG AA contrast, mobile-first.
 
-Screen to design: [SCREEN NAME]
-Key user goal on this screen: [WHAT USER WANTS TO DO]
+Screen to design: Login, Main Dashboard, Task Detail, Task Pool, AI Screenshot Upload Modal, Profile & Settings.
+Key user goal on this screen: Seamlessly capture, categorize, and complete tasks with zero network latency.
 
 Free tools: Figma (free), v0.dev (free), Galileo AI (free tier), Framer (free tier)
 
@@ -108,8 +109,8 @@ Tasks:
 
 Prioritize: perceived performance over decoration. Every animation must have a purpose.
 
-My product's tone is: [fast & functional / warm & friendly / premium & smooth]
-Key screens needing interactions: [LIST SCREENS]
+My product's tone is: fast & functional, premium & smooth.
+Key screens needing interactions: Drag and drop from Task Pool, AI WebGPU extraction loading/processing state, Subtask completion micro-interactions, Offline/Sync status toggle.
 
 Free tools: Figma (free), Framer (free tier), Rive (free), CSS animations (free)
 
@@ -127,8 +128,8 @@ Tasks:
 5. Create a scoring rubric: how to rate each task (completed / completed with difficulty / failed)
 6. Suggest how to synthesize findings into a prioritized fix list
 
-My core user flows: [LIST YOUR FLOWS]
-My target user: [DESCRIBE USER]
+My core user flows: Capture tasks via AI screenshot extraction, Move task from Pool to Category, Complete parent task by finishing subtasks.
+My target user: Busy professionals valuing speed, offline capability, and privacy.
 
 Free tools: Maze (free tier), Lyssna (free tier), Google Forms (free), Lookback (free trial)
 
@@ -146,7 +147,7 @@ Tasks:
 5. Create an accessibility checklist: ARIA roles, keyboard navigation, focus order, screen reader labels
 6. List edge cases engineers need to handle: long text truncation, empty states, error states, offline state
 
-Components to spec: [LIST YOUR COMPONENTS]
-Tech stack: [YOUR STACK — e.g. React + Tailwind]
+Components to spec: Nested list items (Task/Subtask), Category Progress Indicator (bar/circle), File Upload Zone (Screenshot), Sync Status Indicator.
+Tech stack: Next.js 16 + Tailwind CSS v4 + SQLite WASM + PowerSync + Transformers.js.
 
 Free tools: Figma Dev Mode (free), Storybook (free), Zeroheight (free tier), Chromatic (free tier)
