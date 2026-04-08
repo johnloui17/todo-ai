@@ -52,13 +52,10 @@ export const db = new PowerSyncDatabase({
  */
 export const drizzleDb = drizzle(
   async (sql, params, method) => {
-    try {
-      const result = await db.execute(sql, params);
-      return { rows: result.rows._array };
-    } catch (e: any) {
-      console.error('Error executing sql', e);
-      return { rows: [] };
-    }
+    const result = await db.execute(sql, params);
+    // Use public API to access rows. Result is a PowerSync ResultSet.
+    const rows = result.rows ? result.rows.getAll() : [];
+    return { rows };
   },
   { schema }
 );

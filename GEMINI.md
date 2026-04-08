@@ -3,7 +3,7 @@
 ## Current State
 - **Branch**: `feature/phase2-data-model`
 - **Phase**: Phase 2 (Data Model & Storage)
-- **Connected Repo**: `https://github.com/johnloui17/todo-ai.git` (Target: `master`)
+- **Connected Repo**: `https://github.com/johnloui17/todo-ai.git` (Target: `main`)
 
 ## Architectural Decisions
 - **Framework**: Next.js 16 (PWA) / Expo (Targeting mobile-first web initially).

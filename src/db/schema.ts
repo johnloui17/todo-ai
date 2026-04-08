@@ -5,7 +5,9 @@ import { sql } from 'drizzle-orm';
  * Categories Table: User-defined task buckets.
  */
 export const categories = sqliteTable('categories', {
-  id: text('id').primaryKey().notNull(),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   color: text('color'), // hex or Tailwind color name
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
@@ -15,7 +17,9 @@ export const categories = sqliteTable('categories', {
  * Tasks Table: Dual-mode support for 'todo' and 'not_todo'.
  */
 export const tasks = sqliteTable('tasks', {
-  id: text('id').primaryKey().notNull(),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   categoryId: text('category_id').references(() => categories.id, { onDelete: 'set null' }),
   title: text('title').notNull(),
   // type: 'todo' | 'not_todo'
@@ -31,7 +35,9 @@ export const tasks = sqliteTable('tasks', {
  * Subtasks Table: Nested tasks (1 level depth).
  */
 export const subtasks = sqliteTable('subtasks', {
-  id: text('id').primaryKey().notNull(),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   taskId: text('task_id')
     .notNull()
     .references(() => tasks.id, { onDelete: 'cascade' }),
