@@ -16,21 +16,24 @@ This document outlines the development phases for the AI-powered TODO applicatio
 
 ## Phase 2: Core Data Model & Storage
 - [ ] Define Task, Subtask, and Category schemas.
+- [ ] Add `type` (todo/not_todo) and extended status fields to Task schema.
 - [ ] Implement `SQLite` (Local-First) schema with `Drizzle ORM`.
 - [ ] Implement `PowerSync` connection logic.
 
 ## Phase 3: Basic UI Component Implementation
 - [ ] Create `CategoryManager` component with progress bars (TDD).
 - [ ] Create `TaskItem` with Subtask support (TDD).
+- [ ] Create `NotTodoItem` with avoidance toggle and streak counter (TDD).
 - [ ] Create `TaskPool` selection interface (TDD).
 
 ## Phase 4: Feature Integration & State Management
-- [ ] Implement Task addition logic.
-- [ ] Implement Task completion toggle.
+- [ ] Implement Task addition logic (Todo vs Not-Todo).
+- [ ] Implement Task completion/avoidance toggle.
 - [ ] Implement Task deletion.
+- [ ] Implement daily reset/tracking for Not-Todo items.
 - [ ] Verify all features with integration tests.
 
 ## Phase 5: Advanced Features & Polish
-- [ ] Add task filtering (All, Active, Completed).
+- [ ] Add task filtering (All, Active, Completed, Not-Todo).
 - [ ] Implement rich styling and dark mode support.
 - [ ] Final end-to-end verification.

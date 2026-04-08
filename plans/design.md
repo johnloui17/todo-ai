@@ -6,11 +6,11 @@ Tasks:
 1. Generate 3 detailed user personas with: name, age, job, goals, pain points, and tech literacy level
 2. Suggest 5 direct competitor products I should audit and what to look for in each
 3. Define my core design goals: speed, simplicity, data-density, mobile-first, or trust-building
-4. List every user journey I need to design for (onboarding, core action, error recovery, empty state)
+4. List every user journey I need to design for (onboarding, core action, error recovery, empty state, **Not-Todo tracking**)
 5. Identify any assumptions I'm making that need to be validated
 
-My product is: Offline-first, local AI-powered task management app with screenshot-to-task parsing.
-My target user is: Busy professionals or students who frequently take screenshots of things they need to do later, and value data privacy/offline access.
+My product is: Offline-first, local AI-powered task management app with screenshot-to-task parsing and dual-mode (Todo/Not-Todo) tracking.
+My target user is: Busy professionals or students who frequently take screenshots of things they need to do later, and value discipline/habit avoidance alongside task management.
 
 Free tools: v0.dev, Perplexity AI, ChatGPT, Notion AI
 
@@ -22,14 +22,14 @@ You are an expert Information Architect. Help me structure my product's IA.
 
 Tasks:
 1. Create a complete sitemap listing every screen/page and how they connect
-2. Map out step-by-step user flows for these key actions: Upload screenshot for AI task extraction, move tasks from Task Pool to Categories, create a task with nested subtasks.
+2. Map out step-by-step user flows for these key actions: Upload screenshot for AI task extraction, move tasks from Task Pool to Categories, create a task with nested subtasks, **toggle Not-Todo avoidance for the day**.
 3. Define the content hierarchy for each main screen (what is most important, secondary, tertiary)
 4. Recommend a navigation pattern (top nav / sidebar / bottom tabs / hamburger) with reasoning
-5. Identify any screens I might be missing
+5. Identify any screens I might be missing (e.g., **Not-Todo Streak View**)
 
 Apply these principles: progressive disclosure, minimal clicks to core action, familiar patterns over clever ones.
 
-My product screens so far: Login (Google OAuth), Main Dashboard (with Category Progress), Task Detail Screen (with nested subtasks), Task Pool Screen, AI Screenshot Upload/Processing Modal, Settings.
+My product screens so far: Login (Google OAuth), Main Dashboard (with Category Progress), Task Detail Screen (with nested subtasks), Task Pool Screen, **Not-Todo Daily List**, AI Screenshot Upload/Processing Modal, Settings.
 
 Free tools: Whimsical (free), Miro (free tier), FigJam (free), Eraser.io
 
