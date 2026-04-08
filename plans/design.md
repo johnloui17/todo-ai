@@ -1,153 +1,74 @@
-=== PHASE 01: DISCOVERY & RESEARCH ===
+# Design Specification: TODO AI (Local-First)
 
-You are a senior UX researcher. Help me conduct a thorough discovery phase for my product.
+**Based on PRD v1.2**
 
-Tasks:
-1. Generate 3 detailed user personas with: name, age, job, goals, pain points, and tech literacy level
-2. Suggest 5 direct competitor products I should audit and what to look for in each
-3. Define my core design goals: speed, simplicity, data-density, mobile-first, or trust-building
-4. List every user journey I need to design for (onboarding, core action, error recovery, empty state, **Not-Todo tracking**)
-5. Identify any assumptions I'm making that need to be validated
+## 1. Design Philosophy
+- **Mobile-First PWA:** The application is optimized for mobile touch interactions with a native-app feel, fast loading, and robust offline capabilities.
+- **Minimalist & Focused:** Typography and whitespace drive the hierarchy, avoiding unnecessary borders or heavy shadows.
+- **Color Coded Context:** Distinct visual styling for Regular Tasks (productive/neutral tones) vs. Not-Todos (warning/red tones).
 
-My product is: Offline-first, local AI-powered task management app with screenshot-to-task parsing and dual-mode (Todo/Not-Todo) tracking.
-My target user is: Busy professionals or students who frequently take screenshots of things they need to do later, and value discipline/habit avoidance alongside task management.
+## 2. Visual Language & Theming (Tailwind v4)
 
-Free tools: v0.dev, Perplexity AI, ChatGPT, Notion AI
+### Color Palette
+- **Background:** Minimalist white (`#FFFFFF`) for light mode, deep gray (`#121212`) for dark mode.
+- **Primary Accent:** Indigo or Blue (e.g., `text-indigo-600`) for regular tasks and primary actions.
+- **Not-Todo Accent:** Crimson or Red (e.g., `text-red-500`, `bg-red-50`) to indicate avoidance.
+- **Success:** Emerald Green for completed tasks and avoided Not-Todos.
+- **Surface:** Slightly off-background colors for cards and pool items (`bg-zinc-50` / `bg-zinc-900`).
 
-────────────────────────────────────────────────────────────
+### Typography
+- **Headings & Body:** System Sans-Serif (`font-sans`) for optimal performance and native feel (Inter, SF Pro, Roboto).
+- **Weights:** Heavy use of Medium (500) and SemiBold (600) for task titles; Regular (400) for subtasks and metadata.
 
-=== PHASE 02: INFORMATION ARCHITECTURE ===
+## 3. UI Architecture & Navigation
 
-You are an expert Information Architect. Help me structure my product's IA.
+### Core Navigation (Bottom Navigation Bar)
+As a mobile-first PWA, the primary navigation relies on a sticky bottom tab bar:
+1. **Home (Categories):** Dashboard view of all categories with their respective progress rings.
+2. **Pool (Backlog):** The landing zone for unassigned tasks. Draggable interface to assign to categories.
+3. **Not-Todos:** A dedicated view isolated from regular tasks to focus on daily avoidance habits and streaks.
+4. **Settings:** Profile, local DB status, manual cloud sync, and data export.
 
-Tasks:
-1. Create a complete sitemap listing every screen/page and how they connect
-2. Map out step-by-step user flows for these key actions: Upload screenshot for AI task extraction, move tasks from Task Pool to Categories, create a task with nested subtasks, **toggle Not-Todo avoidance for the day**.
-3. Define the content hierarchy for each main screen (what is most important, secondary, tertiary)
-4. Recommend a navigation pattern (top nav / sidebar / bottom tabs / hamburger) with reasoning
-5. Identify any screens I might be missing (e.g., **Not-Todo Streak View**)
+### Floating Action Button (FAB)
+- Prominently placed above the bottom nav on the Home and Pool screens.
+- **Primary Action:** Opens a quick-entry text modal (with keyboard auto-focus).
+- **Secondary Action (Long Press / Dedicated Icon):** Opens the Camera/Gallery for AI Screenshot extraction.
 
-Apply these principles: progressive disclosure, minimal clicks to core action, familiar patterns over clever ones.
+## 4. Key Component Specifications
 
-My product screens so far: Login (Google OAuth), Main Dashboard (with Category Progress), Task Detail Screen (with nested subtasks), Task Pool Screen, **Not-Todo Daily List**, AI Screenshot Upload/Processing Modal, Settings.
+### 1. `CategoryCard`
+- **Visual:** A rounded surface card (`rounded-2xl`, subtle shadow).
+- **Content:** Category Icon/Emoji, Title, and a Circular Progress Indicator showing completion percentage (incorporating subtask weights).
+- **Interaction:** Tap to open the full Category View (list of tasks).
 
-Free tools: Whimsical (free), Miro (free tier), FigJam (free), Eraser.io
+### 2. `TaskItem` (Regular)
+- **Visual:** Clean list item with a leading checkbox.
+- **Content:** Title. If subtasks exist, an expand/collapse chevron is shown alongside a mini progress bar for the subtasks.
+- **Interaction:** Tap checkbox to toggle status. Swipe left to reveal a "Delete" action. Swipe right to reveal a "Move to Pool" action.
 
-────────────────────────────────────────────────────────────
+### 3. `NotTodoItem`
+- **Visual:** Styled with subtle red accents to differentiate from regular tasks.
+- **Content:** Title (the habit to avoid), current Streak count (🔥 Flame icon), and today's status.
+- **Interaction:** Two large touch targets for daily logging: "Avoided" (Success/Green) and "Failed" (Reset/Red).
 
-=== PHASE 03: WIREFRAMING (LO-FI) ===
+### 4. `TaskPoolManager`
+- **Visual:** A vertical list view of unassigned tasks.
+- **Interaction:** Users can drag a task item and drop it into a compact, horizontally scrolling list of Categories pinned at the top of the screen. Alternatively, a tap opens a "Categorize" bottom sheet.
 
-You are a senior product designer. Help me wireframe my key screens.
+## 5. State Management & Data Architecture
 
-For each screen listed below, describe:
-1. The exact layout structure (header, sidebar, main content, footer)
-2. What components go where (buttons, inputs, cards, tables, modals)
-3. The primary CTA and where it lives
-4. What empty state, loading state, and error state should show
-5. Mobile vs desktop layout differences
-6. **Crucial:** Include Sync Status Indicators (Offline, Syncing, Up-to-Date) and AI Fallback states (if WebGPU unsupported).
+### Local-First Data Binding
+- **Architecture:** Drizzle Live Queries.
+- **Flow:** The React UI will directly subscribe to the local SQLite (WASM) database.
+- **Benefits:** Eliminates the need for complex global state stores (like Zustand or Redux) for entity data. When a task is updated in SQLite, the React components using live queries will automatically re-render with the latest state, ensuring a highly reactive offline experience.
+- **Sync Engine:** PowerSync runs continuously in a Web Worker, syncing the local SQLite changes to the Postgres backend via its replication protocol without blocking the main UI thread.
 
-Screens to wireframe: Login, Main Dashboard, Task Detail, Task Pool, AI Screenshot Upload Modal, Profile & Settings.
+## 6. AI Integration Flow (Screenshot-to-Task)
 
-Output each screen as a structured text wireframe using ASCII or a clear description I can hand to a designer or paste into Figma.
-
-Free tools: Figma (free), Uizard (free tier), Sketch2Code, tldraw (free)
-
-────────────────────────────────────────────────────────────
-
-=== PHASE 04: DESIGN SYSTEM SETUP ===
-
-You are a design systems expert. Help me build a scalable design system from scratch.
-
-Tasks:
-1. Suggest a complete color palette: primary, secondary, neutrals, and semantic colors (success/warning/error/info) with hex values
-2. Recommend a typography scale: font family, sizes (H1-H6, body, caption, label), weights, and line heights
-3. Define a spacing system using base-8 grid (8, 16, 24, 32, 48, 64, 96px)
-4. List every UI component I need to build first (prioritized by usage frequency)
-5. Suggest a free icon library that fits my product's tone
-6. Define elevation levels (no shadow / subtle / medium / high)
-
-My product tone is: minimal, fast & functional, trustworthy.
-My primary brand color is: [Please suggest based on the described tone]
-
-Free tools: Shadcn/ui (free), Radix UI (free), Lucide Icons (free), Google Fonts (free), Coolors (free)
-
-────────────────────────────────────────────────────────────
-
-=== PHASE 05: HI-FI MOCKUPS ===
-
-You are a senior UI designer with expertise in conversion-focused design. Help me design high-fidelity screens.
-
-For each screen, provide:
-1. Visual hierarchy recommendations — what should draw the eye first, second, third
-2. Specific color, typography, and spacing decisions using my design system
-3. Component choices — which UI pattern works best and why (table vs cards, tabs vs accordion, etc.)
-4. Micro-copy suggestions — button labels, empty states, placeholder text, tooltips
-5. Accessibility checks — contrast ratios, focus states, aria labels needed
-6. One "design upgrade" idea that would make this screen stand out
-
-Apply these principles: generous whitespace, consistent 8px grid, WCAG AA contrast, mobile-first.
-
-Screen to design: Login, Main Dashboard, Task Detail, Task Pool, AI Screenshot Upload Modal, Profile & Settings.
-Key user goal on this screen: Seamlessly capture, categorize, and complete tasks with zero network latency.
-
-Free tools: Figma (free), v0.dev (free), Galileo AI (free tier), Framer (free tier)
-
-────────────────────────────────────────────────────────────
-
-=== PHASE 06: PROTOTYPING & INTERACTIONS ===
-
-You are a motion design and prototyping expert. Help me define interactions and animations for my product.
-
-Tasks:
-1. List all micro-interactions needed (button press, form validation, page transition, loading, success/error feedback)
-2. For each interaction, define: trigger, animation type, duration (ms), easing curve
-3. Recommend skeleton loader patterns for my data-heavy screens
-4. Define toast/snackbar behavior: position, duration, dismiss behavior
-5. Suggest page transition style that fits my product's tone
-6. Identify any interactions that could delight users without adding friction
-
-Prioritize: perceived performance over decoration. Every animation must have a purpose.
-
-My product's tone is: fast & functional, premium & smooth.
-Key screens needing interactions: Drag and drop from Task Pool, AI WebGPU extraction loading/processing state, Subtask completion micro-interactions, Offline/Sync status toggle.
-
-Free tools: Figma (free), Framer (free tier), Rive (free), CSS animations (free)
-
-────────────────────────────────────────────────────────────
-
-=== PHASE 07: USABILITY TESTING ===
-
-You are a UX research expert. Help me design and run a usability test for my prototype.
-
-Tasks:
-1. Write 5 task-based test scenarios for my core user flows (not "click on X" — real goal-based tasks)
-2. Create a pre-test screener questionnaire to find the right participants (5 users needed)
-3. Write a moderator script: intro, tasks, debrief questions
-4. List the top 10 usability heuristics I should evaluate against
-5. Create a scoring rubric: how to rate each task (completed / completed with difficulty / failed)
-6. Suggest how to synthesize findings into a prioritized fix list
-
-My core user flows: Capture tasks via AI screenshot extraction, Move task from Pool to Category, Complete parent task by finishing subtasks.
-My target user: Busy professionals valuing speed, offline capability, and privacy.
-
-Free tools: Maze (free tier), Lyssna (free tier), Google Forms (free), Lookback (free trial)
-
-────────────────────────────────────────────────────────────
-
-=== PHASE 08: DEV HANDOFF ===
-
-You are a design engineering expert. Help me create a complete dev handoff package.
-
-Tasks:
-1. Write a component spec for each UI component: props, variants, states, behavior
-2. Create an annotation guide: what measurements and notes engineers need on every screen
-3. List all assets to export: format (SVG/WebP/PNG), size variants (@1x, @2x), naming convention
-4. Write interaction spec: exact timing, easing, trigger conditions for every animation
-5. Create an accessibility checklist: ARIA roles, keyboard navigation, focus order, screen reader labels
-6. List edge cases engineers need to handle: long text truncation, empty states, error states, offline state
-
-Components to spec: Nested list items (Task/Subtask), Category Progress Indicator (bar/circle), File Upload Zone (Screenshot), Sync Status Indicator.
-Tech stack: Next.js 16 + Tailwind CSS v4 + SQLite WASM + PowerSync + Transformers.js.
-
-Free tools: Figma Dev Mode (free), Storybook (free), Zeroheight (free tier), Chromatic (free tier)
+1. **Capture:** User taps the "AI Scan" icon in the FAB.
+2. **Processing State:** A lightweight skeleton or pulsing scanner overlay appears over the app.
+3. **Inference (WebGPU):** Transformers.js processes the image entirely on-device.
+4. **Review Modal:** The extracted text is presented in a structured form:
+   - Extracted Task Title (Editable input)
+   - Suggested Category (Dropdown, auto-selected based on AI classification logic)
+5. **Confirmation:** User taps "Save". The application inserts the validated task into SQLite via Drizzle, which immediately updates the UI.
