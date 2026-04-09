@@ -30,7 +30,7 @@ export default function PoolPage() {
 
       <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800 min-h-[400px]">
         <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4 px-2">Unassigned</h2>
-        <TaskList />
+        <TaskList isPool />
       </div>
     </>
   );

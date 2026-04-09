@@ -1,20 +1,78 @@
 'use client';
 
-import React from 'react';
-import NotTodoItem from './NotTodoItem';
+import React, { useEffect, useState } from 'react';
+import NotTodoItem, { NotTodoTask } from './NotTodoItem';
+import { repository } from '@/db/repository';
 
-const MOCK_NOT_TODOS = [
-  { id: '1', title: 'Smoking', streak: 15 },
-  { id: '2', title: 'Sugar intake', streak: 4 },
-  { id: '3', title: 'Social Media > 1h', streak: 8 },
-];
+interface EnhancedNotTodo extends NotTodoTask {
+  streak: number;
+}
 
 const NotTodoList: React.FC = () => {
+  const [items, setItems] = useState<EnhancedNotTodo[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const notTodos = await repository.getNotTodos();
+      const enhanced = await Promise.all(notTodos.map(async (task) => {
+        const streak = await repository.getStreak(task.id);
+        return {
+          ...task,
+          status: task.status as any,
+          streak
+        };
+      }));
+      setItems(enhanced);
+    } catch (err) {
+      console.error('Failed to fetch not-todos:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handleRefresh = () => fetchData();
+    window.addEventListener('task-added', handleRefresh);
+    return () => window.removeEventListener('task-added', handleRefresh);
+  }, []);
+
+  const handleStatusChange = async (id: string, status: 'avoided' | 'failed') => {
+    await repository.updateTaskStatus(id, status);
+    fetchData(); // Refresh data
+  };
+
+  if (loading) {
+    return (
+      <div className="mt-6 space-y-4 animate-pulse">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-32 bg-zinc-100 dark:bg-zinc-800 rounded-[2rem]" />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="mt-6">
-      {MOCK_NOT_TODOS.map((item) => (
-        <NotTodoItem key={item.id} {...item} />
-      ))}
+      {items.length > 0 ? (
+        items.map((item) => (
+          <NotTodoItem 
+            key={item.id} 
+            task={item} 
+            streak={item.streak} 
+            onStatusChange={handleStatusChange}
+          />
+        ))
+      ) : (
+        <div className="text-center py-12 text-zinc-500 bg-red-50/20 dark:bg-red-950/5 rounded-[2rem] border border-dashed border-red-100 dark:border-red-900/20">
+          <p className="font-bold">No Not-Todos listed</p>
+          <p className="text-xs mt-1">Start tracking habits you want to avoid</p>
+        </div>
+      )}
     </div>
   );
 };

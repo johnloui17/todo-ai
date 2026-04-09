@@ -35,6 +35,15 @@ export const AppSchema = new Schema([
       new Column({ name: 'created_at', type: ColumnType.TEXT }),
     ],
   }),
+  new Table({
+    name: 'task_history',
+    columns: [
+      new Column({ name: 'task_id', type: ColumnType.TEXT }),
+      new Column({ name: 'status', type: ColumnType.TEXT }),
+      new Column({ name: 'date', type: ColumnType.TEXT }),
+      new Column({ name: 'created_at', type: ColumnType.TEXT }),
+    ],
+  }),
 ]);
 
 /**

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CheckCircle2, Circle, ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, Circle, ChevronDown, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
 export interface Task {
   id: string;
@@ -23,26 +23,53 @@ interface TaskItemProps {
   subtasks?: Subtask[];
   onToggle?: (taskId: string) => void;
   onToggleSubtask?: (subtaskId: string) => void;
+  onDelete?: (taskId: string) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, subtasks = [], onToggle, onToggleSubtask }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, subtasks = [], onToggle, onToggleSubtask, onDelete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isCompleted = task.status === 'completed';
   const hasSubtasks = subtasks.length > 0;
   const completedSubtasksCount = subtasks.filter(s => s.status === 'completed').length;
   const progressPercent = hasSubtasks ? (completedSubtasksCount / subtasks.length) * 100 : 0;
 
+  // Drag logic for swipe to delete
+  const x = useMotionValue(0);
+  const backgroundOpacity = useTransform(x, [-100, -50, 0], [1, 0.5, 0]);
+  const deleteIconScale = useTransform(x, [-100, -50], [1, 0.5]);
+
+  const handleDragEnd = (event: any, info: any) => {
+    if (info.offset.x < -80) {
+      onDelete?.(task.id);
+    }
+  };
+
   // Extracted Tailwind class variables for better readability
-  const containerClasses = "border-b border-zinc-100 dark:border-zinc-800 last:border-none";
-  const mainRowClasses = "flex items-center gap-4 py-4 px-2 group cursor-pointer";
+  const containerClasses = "relative overflow-hidden border-b border-zinc-100 dark:border-zinc-800 last:border-none";
+  const mainRowClasses = "flex items-center gap-4 py-4 px-2 group cursor-pointer bg-white dark:bg-zinc-950";
   const titleClasses = `text-base font-medium truncate transition-colors ${
     isCompleted ? 'text-zinc-400 line-through' : 'text-zinc-900 dark:text-zinc-100'
   }`;
-  const subtaskContainerClasses = "overflow-hidden bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl mb-2";
+  const subtaskContainerClasses = "overflow-hidden bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl mb-2 ml-10 mr-2";
 
   return (
     <div className={containerClasses}>
+      {/* Delete Background Indicator */}
+      <motion.div 
+        style={{ opacity: backgroundOpacity }}
+        className="absolute inset-0 bg-red-500 flex items-center justify-end px-6 z-0"
+      >
+        <motion.div style={{ scale: deleteIconScale }}>
+          <Trash2 className="text-white" size={24} />
+        </motion.div>
+      </motion.div>
+
       <motion.div
+        drag="x"
+        dragConstraints={{ left: -100, right: 0 }}
+        dragElastic={0.1}
+        onDragEnd={handleDragEnd}
+        style={{ x }}
         initial={{ opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
         className={mainRowClasses}
@@ -103,7 +130,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, subtasks = [], onToggle, onTo
             exit={{ height: 0, opacity: 0 }}
             className={subtaskContainerClasses}
           >
-            <div className="pl-12 pr-4 pb-3 space-y-3" data-testid="subtask-list">
+            <div className="py-3 px-2 space-y-3" data-testid="subtask-list">
               {subtasks.map((subtask) => (
                 <div 
                   key={subtask.id}
