@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import CategoryGrid from '@/components/dashboard/CategoryGrid';
+import CategoryManager from '@/components/dashboard/CategoryManager';
 
 export default function DashboardPage() {
   return (
@@ -11,7 +11,7 @@ export default function DashboardPage() {
         <p className="text-zinc-500 dark:text-zinc-400">Keep track of your progress</p>
       </header>
       
-      <CategoryGrid />
+      <CategoryManager />
       
       <section className="mt-12">
         <div className="flex items-center justify-between mb-4">
