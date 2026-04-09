@@ -8,17 +8,17 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - **Pull Requests**: Changes are pushed to `main` via PRs only.
 
 ## Phase 1: Project Initialization & Environment Setup
-- [ ] Initialize Next.js project with Tailwind v4.
+- [x] Initialize Next.js project with Tailwind v4.
 - [ ] Set up Google OAuth (Supabase/Clerk).
 - [ ] Set up testing framework (Vitest & Testing Library).
 - [ ] Configure linting and code style.
-- [ ] Create basic folder structure.
+- [x] Create basic folder structure.
 
 ## Phase 2: Core Data Model & Storage
-- [ ] Define Task, Subtask, and Category schemas.
-- [ ] Add `type` (todo/not_todo) and extended status fields to Task schema.
-- [ ] Implement `SQLite` (Local-First) schema with `Drizzle ORM`.
-- [ ] Implement `PowerSync` connection logic.
+- [x] Define Task, Subtask, and Category schemas.
+- [x] Add `type` (todo/not_todo) and extended status fields to Task schema.
+- [x] Implement `SQLite` (Local-First) schema with `Drizzle ORM`.
+- [x] Implement `PowerSync` connection logic.
 
 ## Phase 3: Basic UI Component Implementation
 - [ ] Create `CategoryManager` component with progress bars (TDD).
