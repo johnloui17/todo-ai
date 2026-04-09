@@ -10,7 +10,7 @@ This document outlines the development phases for the AI-powered TODO applicatio
 ## Phase 1: Project Initialization & Environment Setup
 - [x] Initialize Next.js project with Tailwind v4.
 - [ ] Set up Google OAuth (Supabase/Clerk).
-- [ ] Set up testing framework (Vitest & Testing Library).
+- [x] Set up testing framework (Vitest & Testing Library).
 - [ ] Configure linting and code style.
 - [x] Create basic folder structure.
 
@@ -21,10 +21,10 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - [x] Implement `PowerSync` connection logic.
 
 ## Phase 3: Basic UI Component Implementation
-- [ ] Create `CategoryManager` component with progress bars (TDD).
-- [ ] Create `TaskItem` with Subtask support (TDD).
-- [ ] Create `NotTodoItem` with avoidance toggle and streak counter (TDD).
-- [ ] Create `TaskPool` selection interface (TDD).
+- [x] Create `CategoryManager` component with progress bars (TDD).
+- [x] Create `TaskItem` with Subtask support (TDD).
+- [x] Create `NotTodoItem` with avoidance toggle and streak counter (TDD).
+- [x] Create `TaskPool` selection interface (TDD).
 
 ## Phase 4: Feature Integration & State Management
 - [ ] Implement Task addition logic (Todo vs Not-Todo).

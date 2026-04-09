@@ -10,7 +10,7 @@ const MOCK_CATEGORIES = [
   { id: '4', name: 'Finance', color: 'purple', progress: 15, icon: '💰' },
 ];
 
-const CategoryGrid: React.FC = () => {
+const CategoryManager: React.FC = () => {
   return (
     <div className="grid grid-cols-2 gap-4 mt-6">
       {MOCK_CATEGORIES.map((category) => (
@@ -20,4 +20,4 @@ const CategoryGrid: React.FC = () => {
   );
 };
 
-export default CategoryGrid;
+export default CategoryManager;
