@@ -62,8 +62,14 @@ export const db = new PowerSyncDatabase({
 export const drizzleDb = drizzle(
   async (sql, params, method) => {
     const result = await db.execute(sql, params);
-    // Use public API or fallback to _array if not present
-    const rows = (result.rows as any)?._array || [];
+    const rows: any[] = [];
+    
+    if (result.rows) {
+      for (let i = 0; i < result.rows.length; i++) {
+        rows.push(result.rows.item(i));
+      }
+    }
+    
     return { rows };
   },
   { schema }

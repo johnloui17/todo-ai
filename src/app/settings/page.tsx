@@ -2,32 +2,50 @@
 
 import React, { useEffect, useState } from 'react';
 import { User, RefreshCw, Database, LogOut, Trash2, Moon, Sun } from 'lucide-react';
+import { repository } from '@/db/repository';
 
 export default function SettingsPage() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Initialize theme from document class
-    if (typeof document !== 'undefined') {
-      setDarkMode(document.documentElement.classList.contains('dark'));
+    // Initialize theme from localStorage or document class
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      const isDark = savedTheme === 'dark' || (!savedTheme && document.documentElement.classList.contains('dark'));
+      setDarkMode(isDark);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
   }, []);
 
   const toggleTheme = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (typeof window !== 'undefined') {
+      if (newMode) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
     }
   };
 
   const handleClearData = async () => {
     if (confirm('Are you sure you want to delete all your data? This cannot be undone.')) {
-      window.localStorage.clear();
-      alert('Local cache cleared. App will now reload.');
-      window.location.reload();
+      try {
+        await repository.clearAllData();
+        window.localStorage.clear();
+        alert('All data has been cleared. App will now reload.');
+        window.location.reload();
+      } catch (err) {
+        console.error('Failed to clear data:', err);
+        alert('Failed to clear some data. Please try again.');
+      }
     }
   };
 

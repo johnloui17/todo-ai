@@ -171,5 +171,12 @@ export const repository = {
     }
     
     return streak;
+  },
+
+  clearAllData: async () => {
+    await drizzleDb.delete(categories);
+    await drizzleDb.delete(tasks);
+    await drizzleDb.delete(subtasks);
+    await drizzleDb.delete(taskHistory);
   }
 };
