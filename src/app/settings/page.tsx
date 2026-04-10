@@ -1,9 +1,36 @@
 'use client';
 
-import React from 'react';
-import { User, RefreshCw, Database, LogOut, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { User, RefreshCw, Database, LogOut, Trash2, Moon, Sun } from 'lucide-react';
 
 export default function SettingsPage() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Initialize theme from document class
+    if (typeof document !== 'undefined') {
+      setDarkMode(document.documentElement.classList.contains('dark'));
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const handleClearData = async () => {
+    if (confirm('Are you sure you want to delete all your data? This cannot be undone.')) {
+      window.localStorage.clear();
+      alert('Local cache cleared. App will now reload.');
+      window.location.reload();
+    }
+  };
+
   return (
     <>
       <header className="mb-8 mt-4">
@@ -12,6 +39,22 @@ export default function SettingsPage() {
       </header>
 
       <div className="space-y-6">
+        <section className="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800">
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Appearance</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {darkMode ? <Moon size={20} className="text-indigo-400" /> : <Sun size={20} className="text-amber-500" />}
+              <span className="font-medium text-zinc-900 dark:text-zinc-100">Dark Mode</span>
+            </div>
+            <button 
+              onClick={toggleTheme}
+              className={`w-12 h-6 rounded-full transition-colors relative ${darkMode ? 'bg-indigo-600' : 'bg-zinc-200'}`}
+            >
+              <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${darkMode ? 'translate-x-6' : ''}`} />
+            </button>
+          </div>
+        </section>
+
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800">
           <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Profile</h2>
           <div className="flex items-center gap-4">
@@ -51,7 +94,10 @@ export default function SettingsPage() {
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800">
           <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4">Danger Zone</h2>
           <div className="space-y-4">
-            <button className="w-full flex items-center gap-3 text-red-600 font-bold py-3 px-1 hover:bg-red-50 rounded-xl transition-colors dark:text-red-400 dark:hover:bg-red-950/20">
+            <button 
+              onClick={handleClearData}
+              className="w-full flex items-center gap-3 text-red-600 font-bold py-3 px-1 hover:bg-red-50 rounded-xl transition-colors dark:text-red-400 dark:hover:bg-red-950/20"
+            >
               <Trash2 size={20} />
               Clear All Data
             </button>

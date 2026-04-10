@@ -34,6 +34,6 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - [x] Verify all features with integration tests.
 
 ## Phase 5: Advanced Features & Polish
-- [ ] Add task filtering (All, Active, Completed, Not-Todo).
-- [ ] Implement rich styling and dark mode support.
-- [ ] Final end-to-end verification.
+- [x] Add task filtering (All, Active, Completed, Not-Todo).
+- [x] Implement rich styling and dark mode support.
+- [x] Final end-to-end verification.

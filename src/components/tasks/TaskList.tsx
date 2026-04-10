@@ -7,21 +7,27 @@ import { repository } from '@/db/repository';
 interface TaskListProps {
   categoryId?: string | null;
   isPool?: boolean;
+  filter?: 'all' | 'pending' | 'completed';
 }
 
 interface EnhancedTask extends Task {
   subtasks: Subtask[];
 }
 
-const TaskList: React.FC<TaskListProps> = ({ categoryId, isPool }) => {
+const TaskList: React.FC<TaskListProps> = ({ categoryId, isPool, filter = 'all' }) => {
   const [tasks, setTasks] = useState<EnhancedTask[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const fetchedTasks = isPool 
+      let fetchedTasks = isPool 
         ? await repository.getPoolTasks() 
         : await repository.getTasks(categoryId);
+      
+      // Client-side filtering for simplicity in MVP, could be optimized in SQL
+      if (filter !== 'all') {
+        fetchedTasks = fetchedTasks.filter(t => t.status === filter);
+      }
       
       const enhanced = await Promise.all(fetchedTasks.map(async (task) => {
         const subs = await repository.getSubtasks(task.id);
@@ -42,13 +48,13 @@ const TaskList: React.FC<TaskListProps> = ({ categoryId, isPool }) => {
 
   useEffect(() => {
     fetchData();
-  }, [categoryId, isPool]);
+  }, [categoryId, isPool, filter]);
 
   useEffect(() => {
     const handleRefresh = () => fetchData();
     window.addEventListener('task-added', handleRefresh);
     return () => window.removeEventListener('task-added', handleRefresh);
-  }, [categoryId, isPool]);
+  }, [categoryId, isPool, filter]);
 
   const handleToggleTask = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
