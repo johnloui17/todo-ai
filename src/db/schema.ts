@@ -45,3 +45,18 @@ export const subtasks = sqliteTable('subtasks', {
   status: text('status', { enum: ['pending', 'completed'] }).notNull().default('pending'),
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
+
+/**
+ * Task History Table: Tracks status per day for streak calculation and logging.
+ */
+export const taskHistory = sqliteTable('task_history', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  taskId: text('task_id')
+    .notNull()
+    .references(() => tasks.id, { onDelete: 'cascade' }),
+  status: text('status', { enum: ['avoided', 'failed', 'completed'] }).notNull(),
+  date: text('date').notNull(), // ISO Date string (YYYY-MM-DD)
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});

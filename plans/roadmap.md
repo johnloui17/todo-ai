@@ -27,11 +27,11 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - [x] Create `TaskPool` selection interface (TDD).
 
 ## Phase 4: Feature Integration & State Management
-- [ ] Implement Task addition logic (Todo vs Not-Todo).
-- [ ] Implement Task completion/avoidance toggle.
-- [ ] Implement Task deletion.
-- [ ] Implement daily reset/tracking for Not-Todo items.
-- [ ] Verify all features with integration tests.
+- [x] Implement Task addition logic (Todo vs Not-Todo).
+- [x] Implement Task completion/avoidance toggle.
+- [x] Implement Task deletion.
+- [x] Implement daily reset/tracking for Not-Todo items.
+- [x] Verify all features with integration tests.
 
 ## Phase 5: Advanced Features & Polish
 - [ ] Add task filtering (All, Active, Completed, Not-Todo).

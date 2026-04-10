@@ -1,16 +1,59 @@
-'use client';
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import TaskList from '@/components/tasks/TaskList';
 import { ArrowLeft, MoreVertical, Plus } from 'lucide-react';
+import { repository } from '@/db/repository';
 
 export default function CategoryDetailPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const [categoryName, setCategoryName] = useState('Loading...');
+  const [progress, setProgress] = useState(0);
 
-  // Mock category data finding
-  const categoryName = 'Personal';
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const cats = await repository.getCategories();
+        const cat = cats.find(c => c.id === id);
+        if (cat) {
+          setCategoryName(cat.name);
+          const progress = await repository.getCategoryProgress(id);
+          setProgress(progress);
+        }
+      } catch (err) {
+        console.error('Failed to fetch category details:', err);
+      }
+    };
+
+    if (id) fetchCategory();
+  }, [id]);
+
+  useEffect(() => {
+    const handleRefresh = async () => {
+      try {
+        const cats = await repository.getCategories();
+        const cat = cats.find(c => c.id === id);
+        if (cat) {
+          setCategoryName(cat.name);
+          const progress = await repository.getCategoryProgress(id);
+          setProgress(progress);
+        }
+      } catch (err) {
+        console.error('Failed to refresh category details:', err);
+      }
+    };
+    window.addEventListener('task-added', handleRefresh);
+    return () => window.removeEventListener('task-added', handleRefresh);
+  }, [id]);
+
+  const handleInlineSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
+      const title = (e.target as HTMLInputElement).value.trim();
+      await repository.createTask(title, 'todo', id);
+      (e.target as HTMLInputElement).value = '';
+      window.dispatchEvent(new CustomEvent('task-added'));
+    }
+  };
 
   return (
     <>
@@ -26,9 +69,12 @@ export default function CategoryDetailPage() {
             <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">{categoryName}</h1>
             <div className="flex items-center gap-2 mt-1">
               <div className="h-1.5 w-24 bg-zinc-200 rounded-full overflow-hidden dark:bg-zinc-800">
-                <div className="h-full bg-indigo-600 w-[65%]" />
+                <div 
+                  className="h-full bg-indigo-600 transition-all duration-500" 
+                  style={{ width: `${progress}%` }}
+                />
               </div>
-              <span className="text-[10px] font-bold text-zinc-500">65%</span>
+              <span className="text-[10px] font-bold text-zinc-500">{Math.round(progress)}%</span>
             </div>
           </div>
         </div>
@@ -42,13 +88,14 @@ export default function CategoryDetailPage() {
           <input 
             type="text" 
             placeholder="Add a task..." 
+            onKeyDown={handleInlineSubmit}
             className="w-full bg-zinc-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
           />
           <Plus className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
         </div>
 
         <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4 px-2">Tasks</h2>
-        <TaskList />
+        <TaskList categoryId={id} />
       </div>
     </>
   );
