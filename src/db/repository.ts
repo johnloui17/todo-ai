@@ -2,13 +2,48 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { drizzleDb } from './powersync';
 import { categories, tasks, subtasks, taskHistory } from './schema';
 
-// Helper to get today's date in YYYY-MM-DD format
-const getTodayDate = () => new Date().toISOString().split('T')[0];
+// Helper to get today's date in YYYY-MM-DD format (local timezone safe)
+const getTodayDate = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper to get yesterday's date
+const getYesterdayDate = () => {
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 export const repository = {
   // --- Categories ---
   getCategories: async () => {
     return await drizzleDb.query.categories.findMany();
+  },
+
+  getCategoryProgress: async (categoryId: string) => {
+    const catTasks = await repository.getTasks(categoryId);
+    let totalItems = 0;
+    let completedItems = 0;
+
+    for (const task of catTasks) {
+      totalItems++;
+      if (task.status === 'completed') completedItems++;
+
+      const subtasks = await repository.getSubtasks(task.id);
+      for (const sub of subtasks) {
+        totalItems++;
+        if (sub.status === 'completed') completedItems++;
+      }
+    }
+
+    return totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
   },
 
   createCategory: async (name: string, color?: string) => {
@@ -99,22 +134,40 @@ export const repository = {
       orderBy: [desc(taskHistory.date)],
     });
 
+    if (history.length === 0) return 0;
+
     let streak = 0;
     const today = getTodayDate();
-    let currentDate = new Date(today);
-
-    // If today is logged, we check if it's 'avoided'.
-    // If it's not logged yet, streak could still be alive from yesterday.
+    const yesterday = getYesterdayDate();
     
-    // Simple streak logic: iterate backwards from today
+    // Check if the most recent entry is today or yesterday
+    // If it's older than yesterday, the streak is broken (0)
+    const latestEntry = history[0];
+    if (latestEntry.date !== today && latestEntry.date !== yesterday) {
+      return 0;
+    }
+
+    let expectedDate = latestEntry.date;
+    
     for (const entry of history) {
-      // This is a simplified logic, ideally we compare dates accurately
-      if (entry.status === 'avoided') {
-        streak++;
-      } else if (entry.status === 'failed') {
+      if (entry.date === expectedDate) {
+        if (entry.status === 'avoided') {
+          streak++;
+          // Move expectedDate to the previous day
+          const d = new Date(expectedDate);
+          d.setDate(d.getDate() - 1);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          expectedDate = `${y}-${m}-${day}`;
+        } else {
+          // It's 'failed' or something else, break streak
+          break;
+        }
+      } else {
+        // Gap in dates, streak broken
         break;
       }
-      // If pending (not in history), we might need to check if yesterday was avoided
     }
     
     return streak;

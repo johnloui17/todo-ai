@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import CategoryCard from './CategoryCard';
 import { repository } from '@/db/repository';
 
@@ -15,55 +15,38 @@ const CategoryManager: React.FC = () => {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const cats = await repository.getCategories();
+  const fetchCategories = useCallback(async () => {
+    try {
+      const cats = await repository.getCategories();
+      
+      // Enhance categories with progress
+      const enhancedCats = await Promise.all(cats.map(async (cat) => {
+        const progress = await repository.getCategoryProgress(cat.id);
         
-        // Enhance categories with progress
-        const enhancedCats = await Promise.all(cats.map(async (cat) => {
-          const catTasks = await repository.getTasks(cat.id);
-          let totalItems = 0;
-          let completedItems = 0;
+        return {
+          id: cat.id,
+          name: cat.name,
+          color: cat.color as any || 'blue',
+          progress
+        };
+      }));
 
-          for (const task of catTasks) {
-            totalItems++;
-            if (task.status === 'completed') completedItems++;
-
-            // Include subtasks in progress calculation
-            const subtasks = await repository.getSubtasks(task.id);
-            for (const sub of subtasks) {
-              totalItems++;
-              if (sub.status === 'completed') completedItems++;
-            }
-          }
-
-          const progress = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
-          
-          return {
-            id: cat.id,
-            name: cat.name,
-            color: cat.color as any || 'blue',
-            progress
-          };
-        }));
-
-        setCategories(enhancedCats);
-      } catch (err) {
-        console.error('Failed to fetch categories:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
+      setCategories(enhancedCats);
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    const handleRefresh = () => fetchCategories();
-    window.addEventListener('task-added', handleRefresh);
-    return () => window.removeEventListener('task-added', handleRefresh);
-  }, []);
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    window.addEventListener('task-added', fetchCategories);
+    return () => window.removeEventListener('task-added', fetchCategories);
+  }, [fetchCategories]);
 
   if (loading) {
     return (

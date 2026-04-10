@@ -4,11 +4,14 @@ import React, { useState } from 'react';
 import { CheckCircle2, Circle, ChevronDown, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
+export type TaskStatus = 'pending' | 'completed' | 'avoided' | 'failed';
+export type TaskType = 'todo' | 'not_todo';
+
 export interface Task {
   id: string;
   title: string;
-  status: 'pending' | 'completed';
-  type: 'todo';
+  status: TaskStatus;
+  type: TaskType;
   categoryId?: string | null;
 }
 

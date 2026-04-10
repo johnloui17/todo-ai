@@ -56,15 +56,43 @@ test('repository.updateTaskStatus updates status and logs history', async () => 
 });
 
 test('repository.getStreak calculates streak from history', async () => {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const dayBefore = new Date();
+  dayBefore.setDate(dayBefore.getDate() - 2);
+  const dayBeforeStr = dayBefore.toISOString().split('T')[0];
+
   // Mock history with 3 avoided entries
   const mockHistory = [
-    { id: '1', taskId: 't1', status: 'avoided', date: '2026-04-09' },
-    { id: '2', taskId: 't1', status: 'avoided', date: '2026-04-08' },
-    { id: '3', taskId: 't1', status: 'avoided', date: '2026-04-07' },
+    { id: '1', taskId: 't1', status: 'avoided', date: todayStr },
+    { id: '2', taskId: 't1', status: 'avoided', date: yesterdayStr },
+    { id: '3', taskId: 't1', status: 'avoided', date: dayBeforeStr },
   ];
   
   vi.mocked(drizzleDb.query.taskHistory.findMany).mockResolvedValue(mockHistory as any);
   
   const streak = await repository.getStreak('t1');
   expect(streak).toBe(3);
+});
+
+test('repository.getStreak returns 0 if there is a gap', async () => {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  // Skip yesterday
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+  const twoDaysAgoStr = twoDaysAgo.toISOString().split('T')[0];
+
+  const mockHistory = [
+    { id: '1', taskId: 't1', status: 'avoided', date: todayStr },
+    { id: '2', taskId: 't1', status: 'avoided', date: twoDaysAgoStr },
+  ];
+  
+  vi.mocked(drizzleDb.query.taskHistory.findMany).mockResolvedValue(mockHistory as any);
+  
+  const streak = await repository.getStreak('t1');
+  expect(streak).toBe(1); // Should only count today since yesterday is missing
 });

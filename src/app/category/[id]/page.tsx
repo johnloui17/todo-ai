@@ -17,21 +17,8 @@ export default function CategoryDetailPage() {
         const cat = cats.find(c => c.id === id);
         if (cat) {
           setCategoryName(cat.name);
-          
-          // Calculate progress (duplicated logic for now, could be in repository)
-          const catTasks = await repository.getTasks(id);
-          let totalItems = 0;
-          let completedItems = 0;
-          for (const task of catTasks) {
-            totalItems++;
-            if (task.status === 'completed') completedItems++;
-            const subtasks = await repository.getSubtasks(task.id);
-            for (const sub of subtasks) {
-              totalItems++;
-              if (sub.status === 'completed') completedItems++;
-            }
-          }
-          setProgress(totalItems === 0 ? 0 : (completedItems / totalItems) * 100);
+          const progress = await repository.getCategoryProgress(id);
+          setProgress(progress);
         }
       } catch (err) {
         console.error('Failed to fetch category details:', err);
@@ -42,32 +29,18 @@ export default function CategoryDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    const handleRefresh = () => {
-      const fetchCategory = async () => {
-        try {
-          const cats = await repository.getCategories();
-          const cat = cats.find(c => c.id === id);
-          if (cat) {
-            setCategoryName(cat.name);
-            const catTasks = await repository.getTasks(id);
-            let totalItems = 0;
-            let completedItems = 0;
-            for (const task of catTasks) {
-              totalItems++;
-              if (task.status === 'completed') completedItems++;
-              const subtasks = await repository.getSubtasks(task.id);
-              for (const sub of subtasks) {
-                totalItems++;
-                if (sub.status === 'completed') completedItems++;
-              }
-            }
-            setProgress(totalItems === 0 ? 0 : (completedItems / totalItems) * 100);
-          }
-        } catch (err) {
-          console.error('Failed to refresh category details:', err);
+    const handleRefresh = async () => {
+      try {
+        const cats = await repository.getCategories();
+        const cat = cats.find(c => c.id === id);
+        if (cat) {
+          setCategoryName(cat.name);
+          const progress = await repository.getCategoryProgress(id);
+          setProgress(progress);
         }
-      };
-      if (id) fetchCategory();
+      } catch (err) {
+        console.error('Failed to refresh category details:', err);
+      }
     };
     window.addEventListener('task-added', handleRefresh);
     return () => window.removeEventListener('task-added', handleRefresh);
