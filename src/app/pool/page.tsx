@@ -5,6 +5,8 @@ import TaskList from '@/components/tasks/TaskList';
 import { Trash2 } from 'lucide-react';
 
 export default function PoolPage() {
+  const [filter, setFilter] = React.useState<'all' | 'pending' | 'completed'>('all');
+
   return (
     <>
       <header className="flex items-center justify-between mb-8 mt-4">
@@ -29,8 +31,25 @@ export default function PoolPage() {
       </section>
 
       <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800 min-h-[400px]">
-        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4 px-2">Unassigned</h2>
-        <TaskList isPool />
+        <div className="flex items-center justify-between mb-4 px-2">
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Unassigned</h2>
+          <div className="flex gap-1">
+            {['all', 'pending', 'completed'].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f as any)}
+                className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tight transition-all ${
+                  filter === f 
+                    ? 'bg-zinc-900 text-white dark:bg-white dark:text-black' 
+                    : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800'
+                }`}
+              >
+                {f === 'pending' ? 'Active' : f}
+              </button>
+            ))}
+          </div>
+        </div>
+        <TaskList isPool filter={filter} />
       </div>
     </>
   );

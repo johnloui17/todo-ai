@@ -20,6 +20,7 @@ const NotTodoList: React.FC = () => {
         return {
           ...task,
           status: task.status as any,
+          type: 'not_todo' as const,
           streak
         };
       }));

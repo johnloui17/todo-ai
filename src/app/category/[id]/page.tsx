@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import TaskList from '@/components/tasks/TaskList';
@@ -8,6 +10,7 @@ export default function CategoryDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [categoryName, setCategoryName] = useState('Loading...');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -92,10 +95,31 @@ export default function CategoryDetailPage() {
             className="w-full bg-zinc-50 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
           />
           <Plus className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-        </div>
+          </div>
 
-        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4 px-2">Tasks</h2>
-        <TaskList categoryId={id} />
+          <div className="flex items-center gap-2 mb-6 px-2 overflow-x-auto no-scrollbar">
+          {[
+            { id: 'all', label: 'All' },
+            { id: 'pending', label: 'Active' },
+            { id: 'completed', label: 'Completed' }
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id as any)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                filter === f.id 
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black' 
+                  : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+          </div>
+
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4 px-2">Tasks</h2>
+          <TaskList categoryId={id} filter={filter} />
+
       </div>
     </>
   );
