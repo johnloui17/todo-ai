@@ -14,7 +14,7 @@ export default function DashboardPage() {
       const tasks = await repository.getAllRecentTasks(3);
       setRecentTasks(tasks);
     } catch (err) {
-      console.error(err);
+      console.error('UI ERROR: fetchRecent:', err);
     } finally {
       setLoading(false);
     }
@@ -25,21 +25,24 @@ export default function DashboardPage() {
   }, [fetchRecent]);
 
   useEffect(() => {
-    window.addEventListener('task-added', fetchRecent);
-    return () => window.removeEventListener('task-added', fetchRecent);
+    const handleRefresh = () => {
+      fetchRecent();
+    };
+    window.addEventListener('task-added', handleRefresh);
+    return () => window.removeEventListener('task-added', handleRefresh);
   }, [fetchRecent]);
 
   return (
     <>
       <header className="mb-6 mt-4">
         <h1 className="text-3xl font-black tracking-tight">Dashboard</h1>
-        <p className="text-zinc-500 dark:text-zinc-400">Keep track of your progress</p>
+        <p className="text-zinc-500 dark:text-zinc-400 text-sm">Keep track of your progress</p>
       </header>
       
       <CategoryManager />
       
       <section className="mt-12">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 px-1">
           <h2 className="text-xl font-bold">Recent Tasks</h2>
         </div>
         
@@ -51,13 +54,13 @@ export default function DashboardPage() {
             </div>
           ) : recentTasks.length > 0 ? (
             <div className="flex flex-col">
-              {recentTasks.map(task => (
-                <TaskItem key={task.id} task={task} />
+              {recentTasks.map((task, index) => (
+                <TaskItem key={`${task.id}-${index}`} task={task} />
               ))}
             </div>
           ) : (
-            <p className="p-8 text-center text-zinc-500 text-sm italic">
-              No recent tasks. Use the + button to add one!
+            <p className="p-10 text-center text-zinc-400 text-xs italic">
+              No recent tasks. Tap the + button to begin.
             </p>
           )}
         </div>

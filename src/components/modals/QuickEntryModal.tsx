@@ -37,7 +37,7 @@ const QuickEntryModal: React.FC<QuickEntryModalProps> = ({ isOpen, onClose, onSu
       onSuccess();
       onClose();
     } catch (err) {
-      console.error('Failed to create task:', err);
+      console.error('UI ERROR: Failed to create task in QuickEntryModal:', err);
     }
   };
 
@@ -107,7 +107,7 @@ const QuickEntryModal: React.FC<QuickEntryModalProps> = ({ isOpen, onClose, onSu
               </div>
 
               {type === 'todo' && categories.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-3" key="cat-selector">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Add to Category (Optional)</label>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -121,9 +121,9 @@ const QuickEntryModal: React.FC<QuickEntryModalProps> = ({ isOpen, onClose, onSu
                     >
                       Task Pool
                     </button>
-                    {categories.map((cat) => (
+                    {categories.map((cat, idx) => (
                       <button
-                        key={cat.id}
+                        key={`${cat.id}-${idx}`}
                         type="button"
                         onClick={() => setCategoryId(cat.id)}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${

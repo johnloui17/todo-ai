@@ -25,11 +25,12 @@ export const repository = {
   // --- Categories ---
   getCategories: async () => {
     try {
-      return await drizzleDb.query.categories.findMany({
+      const results = await drizzleDb.query.categories.findMany({
         orderBy: [desc(categories.createdAt)]
       });
+      return results;
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('REPO ERROR: Fetching categories:', error);
       return [];
     }
   },
@@ -59,7 +60,7 @@ export const repository = {
 
       return totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
     } catch (error) {
-      console.error('Error calculating progress:', error);
+      console.error('REPO ERROR: Calculating progress:', error);
       return 0;
     }
   },
@@ -67,9 +68,11 @@ export const repository = {
   createCategory: async (name: string, color?: string) => {
     try {
       const id = crypto.randomUUID();
-      return await drizzleDb.insert(categories).values({ id, name, color }).returning();
+      const values = { id, name, color: color || 'blue', createdAt: new Date().toISOString() };
+      await drizzleDb.insert(categories).values(values);
+      return [values]; 
     } catch (error) {
-      console.error('Error in repository.createCategory:', error);
+      console.error('REPO ERROR: createCategory:', error);
       throw error;
     }
   },
@@ -81,37 +84,40 @@ export const repository = {
         ? eq(tasks.categoryId, categoryId) 
         : isNull(tasks.categoryId);
         
-      return await drizzleDb.query.tasks.findMany({
+      const results = await drizzleDb.query.tasks.findMany({
         where: and(eq(tasks.type, 'todo'), filter),
         orderBy: [desc(tasks.createdAt)],
       });
+      return results;
     } catch (error) {
-      console.error('Error in repository.getTasks:', error);
+      console.error('REPO ERROR: getTasks:', error);
       return [];
     }
   },
 
   getPoolTasks: async () => {
     try {
-      return await drizzleDb.query.tasks.findMany({
+      const results = await drizzleDb.query.tasks.findMany({
         where: and(eq(tasks.type, 'todo'), isNull(tasks.categoryId)),
         orderBy: [desc(tasks.createdAt)],
       });
+      return results;
     } catch (error) {
-      console.error('Error in repository.getPoolTasks:', error);
+      console.error('REPO ERROR: getPoolTasks:', error);
       return [];
     }
   },
 
   getAllRecentTasks: async (limit = 5) => {
     try {
-      return await drizzleDb.query.tasks.findMany({
+      const results = await drizzleDb.query.tasks.findMany({
         where: eq(tasks.type, 'todo'),
         orderBy: [desc(tasks.createdAt)],
         limit: limit
       });
+      return results;
     } catch (error) {
-      console.error('Error fetching recent tasks:', error);
+      console.error('REPO ERROR: fetching recent tasks:', error);
       return [];
     }
   },
@@ -119,17 +125,18 @@ export const repository = {
   createTask: async (title: string, type: 'todo' | 'not_todo', categoryId?: string | null) => {
     try {
       const id = crypto.randomUUID();
-      const result = await drizzleDb.insert(tasks).values({ 
+      const values = { 
         id, 
         title, 
         type, 
-        categoryId: categoryId || null
-      }).returning();
-      
-      console.log('Task created successfully:', id);
-      return result;
+        categoryId: categoryId || null,
+        status: 'pending' as const,
+        createdAt: new Date().toISOString()
+      };
+      await drizzleDb.insert(tasks).values(values);
+      return [values]; 
     } catch (error) {
-      console.error('Error in repository.createTask:', error);
+      console.error('REPO ERROR: createTask:', error);
       throw error;
     }
   },
@@ -151,7 +158,7 @@ export const repository = {
         }
       }
     } catch (error) {
-      console.error('Error updating task status:', error);
+      console.error('REPO ERROR: updating task status:', error);
     }
   },
 
@@ -159,7 +166,7 @@ export const repository = {
     try {
       return await drizzleDb.delete(tasks).where(eq(tasks.id, taskId));
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error('REPO ERROR: deleting task:', error);
     }
   },
 
@@ -170,7 +177,7 @@ export const repository = {
         where: eq(subtasks.taskId, taskId),
       });
     } catch (error) {
-      console.error('Error fetching subtasks:', error);
+      console.error('REPO ERROR: Fetching subtasks:', error);
       return [];
     }
   },
@@ -178,9 +185,11 @@ export const repository = {
   createSubtask: async (taskId: string, title: string) => {
     try {
       const id = crypto.randomUUID();
-      return await drizzleDb.insert(subtasks).values({ id, taskId, title }).returning();
+      const values = { id, taskId, title, status: 'pending' as const };
+      await drizzleDb.insert(subtasks).values(values);
+      return [values];
     } catch (error) {
-      console.error('Error in repository.createSubtask:', error);
+      console.error('REPO ERROR: createSubtask:', error);
       throw error;
     }
   },
@@ -189,7 +198,7 @@ export const repository = {
     try {
       return await drizzleDb.update(subtasks).set({ status }).where(eq(subtasks.id, subtaskId));
     } catch (error) {
-      console.error('Error updating subtask:', error);
+      console.error('REPO ERROR: updating subtask:', error);
     }
   },
 
@@ -202,7 +211,7 @@ export const repository = {
       });
 
       const today = getTodayDate();
-      return await Promise.all(allNotTodos.map(async (task) => {
+      const results = await Promise.all(allNotTodos.map(async (task) => {
         const historyEntry = await drizzleDb.query.taskHistory.findFirst({
           where: and(eq(taskHistory.taskId, task.id), eq(taskHistory.date, today))
         });
@@ -211,8 +220,9 @@ export const repository = {
           status: historyEntry ? historyEntry.status : 'pending'
         };
       }));
+      return results;
     } catch (error) {
-      console.error('Error fetching not-todos:', error);
+      console.error('REPO ERROR: fetching not-todos:', error);
       return [];
     }
   },
@@ -256,7 +266,7 @@ export const repository = {
       }
       return streak;
     } catch (error) {
-      console.error('Error calculating streak:', error);
+      console.error('REPO ERROR: calculating streak:', error);
       return 0;
     }
   },
@@ -268,7 +278,7 @@ export const repository = {
       await drizzleDb.delete(subtasks);
       await drizzleDb.delete(taskHistory);
     } catch (error) {
-      console.error('Error clearing data:', error);
+      console.error('REPO ERROR: clearing data:', error);
       throw error;
     }
   }
