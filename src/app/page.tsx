@@ -1,9 +1,34 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import CategoryManager from '@/components/dashboard/CategoryManager';
+import TaskItem from '@/components/tasks/TaskItem';
+import { repository } from '@/db/repository';
 
 export default function DashboardPage() {
+  const [recentTasks, setRecentTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRecent = useCallback(async () => {
+    try {
+      const tasks = await repository.getAllRecentTasks(3);
+      setRecentTasks(tasks);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRecent();
+  }, [fetchRecent]);
+
+  useEffect(() => {
+    window.addEventListener('task-added', fetchRecent);
+    return () => window.removeEventListener('task-added', fetchRecent);
+  }, [fetchRecent]);
+
   return (
     <>
       <header className="mb-6 mt-4">
@@ -15,11 +40,26 @@ export default function DashboardPage() {
       
       <section className="mt-12">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Today's Focus</h2>
-          <button className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">View All</button>
+          <h2 className="text-xl font-bold">Recent Tasks</h2>
         </div>
-        <div className="rounded-3xl bg-white p-2 shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800">
-          <p className="p-4 text-center text-zinc-500 text-sm italic">You're doing great! Finish 2 more tasks to hit your daily goal.</p>
+        
+        <div className="rounded-3xl bg-white p-2 shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800 min-h-[100px]">
+          {loading ? (
+            <div className="p-4 animate-pulse space-y-3">
+              <div className="h-12 bg-zinc-50 dark:bg-zinc-800 rounded-2xl" />
+              <div className="h-12 bg-zinc-50 dark:bg-zinc-800 rounded-2xl" />
+            </div>
+          ) : recentTasks.length > 0 ? (
+            <div className="flex flex-col">
+              {recentTasks.map(task => (
+                <TaskItem key={task.id} task={task} />
+              ))}
+            </div>
+          ) : (
+            <p className="p-8 text-center text-zinc-500 text-sm italic">
+              No recent tasks. Use the + button to add one!
+            </p>
+          )}
         </div>
       </section>
     </>
