@@ -47,7 +47,13 @@ export const repository = {
   },
 
   createCategory: async (name: string, color?: string) => {
-    return await drizzleDb.insert(categories).values({ name, color }).returning();
+    try {
+      const id = crypto.randomUUID();
+      return await drizzleDb.insert(categories).values({ id, name, color }).returning();
+    } catch (error) {
+      console.error('Error in repository.createCategory:', error);
+      throw error;
+    }
   },
 
   // --- Tasks ---
@@ -64,7 +70,21 @@ export const repository = {
   },
 
   createTask: async (title: string, type: 'todo' | 'not_todo', categoryId?: string | null) => {
-    return await drizzleDb.insert(tasks).values({ title, type, categoryId }).returning();
+    try {
+      const id = crypto.randomUUID();
+      const result = await drizzleDb.insert(tasks).values({ 
+        id, 
+        title, 
+        type, 
+        categoryId: categoryId === null ? null : categoryId 
+      }).returning();
+      
+      console.log('Task created successfully:', id);
+      return result;
+    } catch (error) {
+      console.error('Error in repository.createTask:', error);
+      throw error;
+    }
   },
 
   updateTaskStatus: async (taskId: string, status: 'pending' | 'completed' | 'avoided' | 'failed') => {
@@ -100,7 +120,13 @@ export const repository = {
   },
 
   createSubtask: async (taskId: string, title: string) => {
-    return await drizzleDb.insert(subtasks).values({ taskId, title }).returning();
+    try {
+      const id = crypto.randomUUID();
+      return await drizzleDb.insert(subtasks).values({ id, taskId, title }).returning();
+    } catch (error) {
+      console.error('Error in repository.createSubtask:', error);
+      throw error;
+    }
   },
 
   updateSubtaskStatus: async (subtaskId: string, status: 'pending' | 'completed') => {

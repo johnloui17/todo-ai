@@ -1,4 +1,4 @@
-import { PowerSyncDatabase } from '@powersync/web';
+import { PowerSyncDatabase, WASQLiteOpenFactory } from '@powersync/web';
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import * as schema from './schema';
 
@@ -11,6 +11,7 @@ export const AppSchema = new Schema([
   new Table({
     name: 'categories',
     columns: [
+      new Column({ name: 'id', type: ColumnType.TEXT }), // Explicitly add id
       new Column({ name: 'name', type: ColumnType.TEXT }),
       new Column({ name: 'color', type: ColumnType.TEXT }),
       new Column({ name: 'created_at', type: ColumnType.TEXT }),
@@ -19,6 +20,7 @@ export const AppSchema = new Schema([
   new Table({
     name: 'tasks',
     columns: [
+      new Column({ name: 'id', type: ColumnType.TEXT }), // Explicitly add id
       new Column({ name: 'category_id', type: ColumnType.TEXT }),
       new Column({ name: 'title', type: ColumnType.TEXT }),
       new Column({ name: 'type', type: ColumnType.TEXT }),
@@ -29,6 +31,7 @@ export const AppSchema = new Schema([
   new Table({
     name: 'subtasks',
     columns: [
+      new Column({ name: 'id', type: ColumnType.TEXT }), // Explicitly add id
       new Column({ name: 'task_id', type: ColumnType.TEXT }),
       new Column({ name: 'title', type: ColumnType.TEXT }),
       new Column({ name: 'status', type: ColumnType.TEXT }),
@@ -38,6 +41,7 @@ export const AppSchema = new Schema([
   new Table({
     name: 'task_history',
     columns: [
+      new Column({ name: 'id', type: ColumnType.TEXT }), // Explicitly add id
       new Column({ name: 'task_id', type: ColumnType.TEXT }),
       new Column({ name: 'status', type: ColumnType.TEXT }),
       new Column({ name: 'date', type: ColumnType.TEXT }),
@@ -47,13 +51,13 @@ export const AppSchema = new Schema([
 ]);
 
 /**
- * Initialize the PowerSync instance.
+ * Initialize the PowerSync instance with the correct factory for web.
  */
 export const db = new PowerSyncDatabase({
   schema: AppSchema,
-  database: {
+  database: new WASQLiteOpenFactory({
     dbFilename: 'todo-ai.db',
-  },
+  }),
 });
 
 /**
