@@ -49,6 +49,25 @@ export default function SettingsPage() {
     }
   };
 
+  const handleCreateSampleData = async () => {
+    try {
+      const results = await repository.createCategory('Work', 'blue');
+      // result is typically an array from .returning()
+      const catId = (results as any)?.[0]?.id;
+      
+      await repository.createTask('Complete Project Plan', 'todo', catId);
+      await repository.createTask('Email Team', 'todo', catId);
+      await repository.createTask('Exercise', 'todo', null);
+      await repository.createTask('Check Social Media', 'not_todo', null);
+      
+      alert('Sample data created!');
+      window.dispatchEvent(new CustomEvent('task-added'));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to create sample data. Make sure database is initialized.');
+    }
+  };
+
   return (
     <>
       <header className="mb-8 mt-4">
@@ -104,7 +123,7 @@ export default function SettingsPage() {
                 <Database size={20} className="text-indigo-600" />
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">Local Data</span>
               </div>
-              <span className="text-sm font-bold text-zinc-500">1.2 MB</span>
+              <span className="text-sm font-bold text-zinc-500">Active</span>
             </div>
           </div>
         </section>
@@ -112,6 +131,13 @@ export default function SettingsPage() {
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800">
           <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4">Danger Zone</h2>
           <div className="space-y-4">
+            <button 
+              onClick={handleCreateSampleData}
+              className="w-full flex items-center gap-3 text-indigo-600 font-bold py-3 px-1 hover:bg-zinc-50 rounded-xl transition-colors dark:text-indigo-400 dark:hover:bg-zinc-800/30"
+            >
+              <RefreshCw size={20} />
+              Create Sample Data
+            </button>
             <button 
               onClick={handleClearData}
               className="w-full flex items-center gap-3 text-red-600 font-bold py-3 px-1 hover:bg-red-50 rounded-xl transition-colors dark:text-red-400 dark:hover:bg-red-950/20"

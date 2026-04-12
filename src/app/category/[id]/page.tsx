@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import TaskList from '@/components/tasks/TaskList';
 import { ArrowLeft, MoreVertical, Plus } from 'lucide-react';
@@ -13,41 +13,32 @@ export default function CategoryDetailPage() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    const fetchCategory = async () => {
-      try {
-        const cats = await repository.getCategories();
-        const cat = cats.find(c => c.id === id);
-        if (cat) {
-          setCategoryName(cat.name);
-          const progress = await repository.getCategoryProgress(id);
-          setProgress(progress);
-        }
-      } catch (err) {
-        console.error('Failed to fetch category details:', err);
+  const fetchDetails = useCallback(async () => {
+    if (!id) return;
+    try {
+      const cats = await repository.getCategories();
+      const cat = cats.find(c => c.id === id);
+      if (cat) {
+        setCategoryName(cat.name);
+        const progress = await repository.getCategoryProgress(id);
+        setProgress(progress);
       }
-    };
-
-    if (id) fetchCategory();
+    } catch (err) {
+      console.error('UI ERROR: fetchDetails:', err);
+    }
   }, [id]);
 
   useEffect(() => {
-    const handleRefresh = async () => {
-      try {
-        const cats = await repository.getCategories();
-        const cat = cats.find(c => c.id === id);
-        if (cat) {
-          setCategoryName(cat.name);
-          const progress = await repository.getCategoryProgress(id);
-          setProgress(progress);
-        }
-      } catch (err) {
-        console.error('Failed to refresh category details:', err);
-      }
+    fetchDetails();
+  }, [fetchDetails]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchDetails();
     };
     window.addEventListener('task-added', handleRefresh);
     return () => window.removeEventListener('task-added', handleRefresh);
-  }, [id]);
+  }, [fetchDetails]);
 
   const handleInlineSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
