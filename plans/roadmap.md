@@ -37,3 +37,9 @@ This document outlines the development phases for the AI-powered TODO applicatio
 - [x] Add task filtering (All, Active, Completed, Not-Todo).
 - [x] Implement rich styling and dark mode support.
 - [x] Final end-to-end verification.
+
+## Phase 6: AI Integration, Auth & Sync
+- [ ] Implement real AI Screenshot-to-Task (OCR + Categorization).
+- [ ] Set up Google OAuth (Supabase/Clerk).
+- [ ] Connect PowerSync to a live backend for cloud synchronization.
+- [ ] Implement Data Export (JSON/CSV) functionality.

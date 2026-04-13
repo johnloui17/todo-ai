@@ -1,19 +1,33 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, Scan, Type } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Scan, Type, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuickEntryModal from '../modals/QuickEntryModal';
+import { aiService, ExtractedTask } from '@/lib/ai/ocr';
+import { repository } from '@/db/repository';
 
 const GlobalFAB: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [prefillData, setPrefillData] = useState<Partial<ExtractedTask> | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<{id: string, name: string}[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchCats = async () => {
+      const cats = await repository.getCategories();
+      setAvailableCategories(cats.map(c => ({ id: c.id, name: c.name })));
+    };
+    fetchCats();
+  }, []);
 
   const handleSuccess = () => {
     // Emit a custom event so pages can refresh their data
     window.dispatchEvent(new CustomEvent('task-added'));
+    setPrefillData(null);
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,21 +36,57 @@ const GlobalFAB: React.FC = () => {
 
     setIsScanning(true);
     setIsMenuOpen(false);
+    setError(null);
 
-    // Simulate AI processing delay
-    setTimeout(() => {
+    try {
+      // 1. Process with real AI Service
+      const categoryNames = availableCategories.map(c => c.name);
+      // Fallback categories if none exist
+      const candidates = categoryNames.length > 0 ? categoryNames : ['Work', 'Personal', 'Shopping', 'Health'];
+      
+      const results = await aiService.processScreenshot(file, candidates);
+      
+      if (results && results.length > 0) {
+        // For now, take the first task extracted. 
+        // Future: Show a list of all extracted tasks to confirm.
+        const firstTask = results[0];
+        
+        // Find matching category ID
+        const matchedCat = availableCategories.find(c => c.name.toLowerCase() === firstTask.category.toLowerCase());
+        
+        setPrefillData({
+          title: firstTask.title,
+          category: matchedCat?.id || firstTask.category
+        });
+        
+        setIsModalOpen(true);
+      } else {
+        setError("No tasks found in screenshot.");
+      }
+    } catch (err: any) {
+      console.error('AI Processing Error:', err);
+      setError("AI failed to process image. Try manual entry.");
+    } finally {
       setIsScanning(false);
-      // Pre-fill modal or logic here. 
-      // For the demo, we'll just open the manual modal but could 
-      // pass "extracted" data.
-      setIsModalOpen(true);
-    }, 2000);
+    }
   };
 
   return (
     <>
       <div className="fixed bottom-24 right-6 z-40 flex flex-col items-center gap-4">
         <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="absolute -top-12 right-0 bg-red-500 text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 text-xs font-medium whitespace-nowrap"
+            >
+              <AlertCircle size={14} />
+              {error}
+            </motion.div>
+          )}
+
           {isScanning && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -45,7 +95,10 @@ const GlobalFAB: React.FC = () => {
               className="absolute -top-20 right-0 bg-indigo-600 text-white px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3 whitespace-nowrap"
             >
               <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span className="text-xs font-bold">AI Scanning...</span>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold">AI Scanning...</span>
+                <span className="text-[10px] opacity-80 italic">May take a few seconds on first run</span>
+              </div>
             </motion.div>
           )}
           
@@ -77,6 +130,7 @@ const GlobalFAB: React.FC = () => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.5, y: 10 }}
                 onClick={() => {
+                  setPrefillData(null);
                   setIsModalOpen(true);
                   setIsMenuOpen(false);
                 }}
@@ -105,8 +159,12 @@ const GlobalFAB: React.FC = () => {
 
       <QuickEntryModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setPrefillData(null);
+        }} 
         onSuccess={handleSuccess}
+        prefillData={prefillData}
       />
     </>
   );
